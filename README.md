@@ -79,3 +79,33 @@ If you prefer not to install, you can run the wrapper script with the package on
 **Uninstall**
 
 - `pip uninstall music-analysis`
+
+**Dependencies**
+
+Python dependencies are declared in `pyproject.toml` and installed by pip:
+- numpy, pandas, matplotlib
+
+On Conda, you can also preinstall them: `conda install -n music-analysis numpy pandas matplotlib`, then run `python -m pip install -e .`.
+
+**Analyses (additional CLI scripts)**
+
+- Entropy & Complexity:
+  - Run: `python scripts/scales_entropy_cli.py --out-dir out/entropy --max-gap 4`
+  - Outputs: `entropy_metrics.csv`, `hist_entropy.svg`, `scatter_entropy_vs_k.svg`, `scatter_entropy_vs_arrangement.svg`, `scatter_lz_vs_entropy.svg`
+
+- Mode Equivalence (symmetry):
+  - Run: `python scripts/scales_mode_equivalence_cli.py --out-dir out/modes --max-gap 4 --dihedral`
+  - Outputs: `mode_classes.csv`, `classes_by_k.csv`, `bar_classes_by_k.svg`, `hist_symmetry_order.svg`
+
+- Graph & Distances:
+  - Build flip-edge graph (Hamming=1):
+    - `python scripts/scales_graph_cli.py --out-dir out/graph --max-gap 4`
+  - Build swap-edge graph (size-preserving):
+    - `python scripts/scales_graph_cli.py --out-dir out/graph_swap --edge-type swap --k 7`
+  - Nearest neighbors to a target (e.g., major):
+    - `python scripts/scales_graph_cli.py --out-dir out/graph_nn --k 7 --target major`
+  - Shortest path between major and minor within size-preserving graph:
+    - `python scripts/scales_graph_cli.py --out-dir out/graph_path --edge-type swap --k 7 --path-src major --path-dst minor`
+  - Outputs: `graph_nodes.csv`, `graph_edges.csv`, `degree_histogram.svg`, `component_sizes.svg`, and optionally `nearest_neighbors.csv`, `shortest_path.csv`.
+
+All figures are saved as SVG with publication-friendly styling (grid on, clean axes, text preserved).
