@@ -72,22 +72,7 @@ If you prefer not to install, you can run the wrapper script with the package on
 6) Ian Ring–style gap (≤4) with defaults
 ```python scripts/scales_defects_cli.py --out-dir out/maxgap4 --max-gap 4```
 
-### Example results
-
-<img width="615" height="770" alt="image" src="https://github.com/user-attachments/assets/c77f6e43-fd02-4060-b5b8-6c3fb3f3290b" />
-
-**Uninstall**
-
-- `pip uninstall music-analysis`
-
-**Dependencies**
-
-Python dependencies are declared in `pyproject.toml` and installed by pip:
-- numpy, pandas, matplotlib
-
-On Conda, you can also preinstall them: `conda install -n music-analysis numpy pandas matplotlib`, then run `python -m pip install -e .`.
-
-**Analyses (additional CLI scripts)**
+## Additional anlysis, e.g. entropy and graphs
 
 - Entropy & Complexity:
   - Run: `python scripts/scales_entropy_cli.py --out-dir out/entropy --max-gap 4`
@@ -108,4 +93,19 @@ On Conda, you can also preinstall them: `conda install -n music-analysis numpy p
     - `python scripts/scales_graph_cli.py --out-dir out/graph_path --edge-type swap --k 7 --path-src major --path-dst minor`
   - Outputs: `graph_nodes.csv`, `graph_edges.csv`, `degree_histogram.svg`, `component_sizes.svg`, and optionally `nearest_neighbors.csv`, `shortest_path.csv`.
 
-All figures are saved as SVG with publication-friendly styling (grid on, clean axes, text preserved).
+All figures are saved as SVG.
+
+### Example results
+
+<img width="615" height="770" alt="image" src="https://github.com/user-attachments/assets/c77f6e43-fd02-4060-b5b8-6c3fb3f3290b" />
+
+**Uninstall**
+
+- `pip uninstall music-analysis`
+
+**Dependencies**
+
+Python dependencies are declared in `pyproject.toml` and installed by pip:
+- numpy, pandas, matplotlib
+
+On Conda, you can also preinstall them: `conda install -n music-analysis numpy pandas matplotlib`, then run `python -m pip install -e .`.
