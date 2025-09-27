@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterable, Iterator, List, Optional, Sequence, Tuple
+from typing import Dict, Iterable, Iterator, List, Optional, Sequence, Tuple
 
 N_PCS_DEFAULT = 12
 
@@ -229,10 +229,43 @@ MINOR_MASK = steps_to_mask(NATURAL_MINOR_STEPS, N_PCS_DEFAULT)
 def parse_scale_spec(spec: str, n: int = N_PCS_DEFAULT) -> int:
     """Parse scale spec like 'major', 'minor', 'mask:1234', 'steps:2-2-1-...'"""
     s = spec.strip().lower()
-    if s == "major":
+    if s in {"major", "ionian", "western-major", "diatonic-major"}:
         return MAJOR_MASK
-    if s in {"minor", "aeolian", "natural-minor"}:
+    if s in {"minor", "aeolian", "natural-minor", "diatonic-minor"}:
         return MINOR_MASK
+    # Common pentatonic forms (12-TET approximations)
+    if s in {"pentatonic-major", "major-pentatonic"}:
+        return steps_to_mask((2, 2, 3, 2, 3), n)
+    if s in {"pentatonic-minor", "minor-pentatonic"}:
+        return steps_to_mask((3, 2, 2, 3, 2), n)
+    # Diminished (octatonic) variants (8-tone): whole-half and half-whole
+    if s in {"diminished", "octatonic", "octatonic-whole-half", "dim-wh", "diminished-wh"}:
+        return steps_to_mask((2, 1, 2, 1, 2, 1, 2, 1), n)
+    if s in {"octatonic-half-whole", "dim-hw", "diminished-hw"}:
+        return steps_to_mask((1, 2, 1, 2, 1, 2, 1, 2), n)
+    # Harmonic minor (7-tone) and Bebop variants (8-tone)
+    if s in {"harmonic-minor"}:
+        return steps_to_mask((2, 1, 2, 2, 1, 3, 1), n)
+    if s in {"bebop-dominant"}:
+        # Mixolydian + 7
+        return steps_to_mask((2, 2, 1, 2, 2, 1, 1, 1), n)
+    if s in {"bebop-major"}:
+        # Ionian + #5 (between 5 and 6)
+        return steps_to_mask((2, 2, 1, 2, 1, 1, 2, 1), n)
+    if s in {"bebop-harmonic-minor", "harmonic-minor-bebop", "bebop-natural-minor"}:
+        # Harmonic minor + b7 (contains both b7 and 7): 1 2 b3 4 5 b6 b7 7
+        # Step pattern from C: C D Eb F G Ab Bb B C -> 2,1,2,2,1,2,1,1
+        return steps_to_mask((2, 1, 2, 2, 1, 2, 1, 1), n)
+    # Selected ragas and maqamat (12-TET approximations; illustrative only)
+    if s in {"raga-bhairav", "bhairav", "maqam-hijaz", "hijaz"}:
+        # 1–3–1 tetrachords with a 2 between: 1,3,1,2,1,3,1
+        return steps_to_mask((1, 3, 1, 2, 1, 3, 1), n)
+    if s in {"raga-kalyani", "kalyani", "lydian"}:
+        # Lydian: 2,2,2,1,2,2,1
+        return steps_to_mask((2, 2, 2, 1, 2, 2, 1), n)
+    if s in {"maqam-bayati", "bayati"}:
+        # Bayati (approx.): 1,2,2,2,1,2,2
+        return steps_to_mask((1, 2, 2, 2, 1, 2, 2), n)
     if s.startswith("mask:"):
         return int(s.split(":", 1)[1])
     if s.startswith("steps:"):
@@ -331,4 +364,3 @@ def shortest_path(g: Graph, src: int, dst: int) -> Optional[List[int]]:
                 return path
             q.append(y)
     return None
-

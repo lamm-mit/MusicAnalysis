@@ -72,21 +72,25 @@ If you prefer not to install, you can run the wrapper script with the package on
 6) Ian Ring–style gap (≤4) with defaults
 ```python scripts/scales_defects_cli.py --out-dir out/maxgap4 --max-gap 4```
 
-## Additional anlysis, e.g. entropy and graphs
+## Additional analysis: entropy, symmetry, and graphs
 
 Entropy & sequence complexity (`scripts/scales_entropy_cli.py`)
 - Purpose: quantify order/disorder of a scale’s step vector and relate it to geometric symmetry (arrangement defect).
 - Inputs: `--n` (N‑TET, default 12), `--min-k/--max-k` or `--k`, optional `--max-gap`, and `--no-require-root`.
-- Step vector: differences between successive pitch classes in ascending order plus wrap‑around; elements sum to `n`.
+- Step vector: for sorted pitch classes including the root, take consecutive differences on the circle plus wrap‑around; entries are positive integers that sum to `n`.
 - Metrics
-  - Shannon entropy (bits): `H = -Σ p(s) log2 p(s)` over step sizes `s` in the vector.
-  - Normalized entropy: `H / log2(min(k, n))` ∈ [0,1] so values are comparable across `k`.
-  - LZ76 complexity (normalized): phrase count `c(n)` scaled as `c(n)*log2(n)/n` ∈ [0,1]; captures repetition vs novelty beyond histograms.
-  - Arrangement defect: `1 − max_τ cosine(g, rotate(reverse(g), τ))` (0 = palindromic under rotation).
+  - Shannon entropy (bits): `H = -Σ_s p(s)·log2 p(s)` where `p(s)` is the frequency of step size `s` in the vector.
+  - Normalized entropy: divide by `log2(min(k, n))` to get `[0,1]`, enabling comparisons across `k`.
+  - LZ76 complexity (normalized): parse the step sequence into novel phrases; report `c(n)*log2(n)/n` in `[0,1]`. Sensitive to sequential structure beyond histograms.
+  - Arrangement defect: `1 − max_τ cosine(g, rotate(reverse(g), τ))`; equals `0` for palindromic arrangements under rotation, increases with asymmetry.
 - Outputs
   - `entropy_metrics.csv`: one row per scale with `k`, `entropy_bits`, `entropy_norm`, `lz_norm`, `arrangement_defect`.
   - Figures: `hist_entropy.svg`, `scatter_entropy_vs_k.svg`, `scatter_entropy_vs_arrangement.svg`, `scatter_lz_vs_entropy.svg`.
-- Example: `python scripts/scales_entropy_cli.py --out-dir out/entropy --max-gap 4`
+- Cultural overlays (12‑TET approximations): add labeled examples to the distribution and scatter plots using `--overlay-cultural`. Included: Western major/minor, major/minor pentatonic, raga Bhairav, raga Kalyani (Lydian), maqam Bayati, maqam Hijaz. These use simple 12‑TET step approximations for illustration.
+  - Also included: diminished (octatonic, both W–H and H–W forms), harmonic minor (7), bebop dominant (8), bebop major (8), and bebop harmonic minor (8). Names and step patterns use common 12‑TET approximations.
+  - Example: `python scripts/scales_entropy_cli.py --out-dir out/entropy --max-gap 4 --overlay-cultural`
+  - Extra outputs: `cultural_scales_metrics.csv`, `hist_entropy_with_cultural.svg`, `scatter_entropy_vs_k_cultural.svg`, `scatter_entropy_vs_arrangement_cultural.svg`.
+  - Plotting details: cultural examples use distinct colors and markers with a legend placed outside the axes to avoid overlap. Small, non-inferential jitter is applied when multiple examples share identical coordinates so each marker remains visible while still indicating co-location.
 
 Mode equivalence & symmetry (`scripts/scales_mode_equivalence_cli.py`)
 - Purpose: collapse rotation‑equivalent (and optionally reflection‑equivalent) modes and measure symmetry.

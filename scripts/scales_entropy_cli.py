@@ -8,6 +8,10 @@ Outputs (under --out-dir):
   - scatter_entropy_vs_k.svg
   - scatter_entropy_vs_arrangement.svg
   - scatter_lz_vs_entropy.svg
+  - cultural_scales_metrics.csv (optional, if --overlay-cultural)
+  - hist_entropy_with_cultural.svg (optional)
+  - scatter_entropy_vs_k_cultural.svg (optional)
+  - scatter_entropy_vs_arrangement_cultural.svg (optional)
 
 Figures are publication-friendly SVGs (text preserved, grid on).
 
@@ -23,6 +27,7 @@ import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import cm
 
 from music_analysis.plotting import apply_pub_style, save_svg
 from music_analysis.theory import (
@@ -33,6 +38,7 @@ from music_analysis.theory import (
     shannon_entropy_bits,
     lz76_complexity_norm,
     step_vector_from_pcs,
+    parse_scale_spec,
 )
 
 
@@ -57,6 +63,29 @@ def compute_table(n: int, require_root: bool, min_k: int, max_k: int | None, max
     return pd.DataFrame(rows)
 
 
+def cultural_catalog() -> dict:
+    """Return a small catalog of culturally salient 12-TET approximations.
+
+    Note: These are illustrative 12-TET step patterns for demonstration.
+    """
+    return {
+        "major (ionian)": "major",
+        "natural minor (aeolian)": "minor",
+        "major pentatonic": "pentatonic-major",
+        "minor pentatonic": "pentatonic-minor",
+        "raga bhairav (≈ hijaz)": "raga-bhairav",
+        "raga kalyani (lydian)": "raga-kalyani",
+        "maqam bayati (approx)": "maqam-bayati",
+        "maqam hijaz": "maqam-hijaz",
+        "diminished octatonic (W–H)": "octatonic-whole-half",
+        "diminished octatonic (H–W)": "octatonic-half-whole",
+        "harmonic minor (7)": "harmonic-minor",
+        "bebop dominant (8)": "bebop-dominant",
+        "bebop major (8)": "bebop-major",
+        "bebop harmonic minor (8)": "bebop-harmonic-minor",
+    }
+
+
 def main():
     ap = argparse.ArgumentParser(description="Entropy and complexity metrics for N-TET scales")
     ap.add_argument("--out-dir", required=True, help="Directory to write CSVs and SVG figures")
@@ -65,6 +94,7 @@ def main():
     ap.add_argument("--max-k", type=int, default=None, help="Maximum scale size to include (default n)")
     ap.add_argument("--max-gap", type=int, default=None, help="Max circular step allowed (semitones)")
     ap.add_argument("--no-require-root", action="store_true", help="Do NOT require pc 0 to be present")
+    ap.add_argument("--overlay-cultural", action="store_true", help="Overlay selected cultural scales on the plots (12-TET approximations)")
     args = ap.parse_args()
 
     out = args.out_dir
@@ -91,6 +121,8 @@ def main():
 
     # Scatter entropy vs k
     plt.figure()
+    plt.figure(figsize=(9, 5.5))
+    
     plt.scatter(df["k"], df["entropy_norm"], s=6, alpha=0.7)
     plt.xlabel("Scale size k")
     plt.ylabel("Normalized entropy")
@@ -99,6 +131,8 @@ def main():
 
     # Scatter entropy vs arrangement defect
     plt.figure()
+    plt.figure(figsize=(9, 5.5))
+    
     plt.scatter(df["arrangement_defect"], df["entropy_norm"], s=6, alpha=0.7)
     plt.xlabel("Arrangement defect")
     plt.ylabel("Normalized entropy")
@@ -107,15 +141,105 @@ def main():
 
     # Scatter LZ vs entropy
     plt.figure()
+    plt.figure(figsize=(9, 5.5))
+    
     plt.scatter(df["entropy_norm"], df["lz_norm"], s=6, alpha=0.7)
     plt.xlabel("Normalized entropy")
     plt.ylabel("Normalized LZ complexity")
     plt.title("Sequence complexity vs entropy")
     save_svg(os.path.join(out, "scatter_lz_vs_entropy.svg"))
 
+    # Cultural overlays (12-TET approximations)
+    if args.overlay_cultural and args.n == 12:
+        cat = cultural_catalog()
+        rows = []
+        for name, spec in cat.items():
+            try:
+                m = parse_scale_spec(spec, n=args.n)
+            except Exception:
+                continue
+            pcs = pcs_from_mask(m, args.n)
+            if require_root and 0 not in pcs:
+                pcs = sorted([0] + [p for p in pcs if p != 0])
+            steps = step_vector_from_pcs(pcs, args.n)
+            H, Hn = shannon_entropy_bits(steps, args.n)
+            lz = lz76_complexity_norm(steps)
+            arr = arrangement_defect(steps)
+            rows.append({
+                "name": name,
+                "mask": m,
+                "k": len(pcs),
+                "entropy_bits": H,
+                "entropy_norm": Hn,
+                "lz_norm": lz,
+                "arrangement_defect": arr,
+            })
+        if rows:
+            cdf = pd.DataFrame(rows)
+            cdf.to_csv(os.path.join(out, "cultural_scales_metrics.csv"), index=False)
+
+            # Histogram with vertical lines for cultural scales + legend to avoid overlap
+            apply_pub_style()
+            plt.figure()
+            plt.hist(df["entropy_norm"], bins=30)
+            markers = ["o", "s", "^", "D", "v", "P", "*", "X", "h", ">", "<", "8"]
+            colors = list(cm.get_cmap("tab10").colors)
+            y0, y1 = plt.ylim()
+            rug_y = y0 + 0.035 * (y1 - y0)
+            for i, r in enumerate(cdf.itertuples(index=False)):
+                x = float(r.entropy_norm)
+                col = colors[i % len(colors)]
+                mk = markers[i % len(markers)]
+                # vertical line in distinct color
+                plt.axvline(x, color=col, linestyle="--", linewidth=1.2, label=getattr(r, "name"))
+                # small rug marker with slight jitter to hint duplicates
+                jitter = ((i % 5) - 2) * 0.002
+                plt.scatter([x + jitter], [rug_y], color=col, marker=mk, s=40, zorder=3)
+            plt.xlabel("Normalized Shannon entropy (steps)")
+            plt.ylabel("Count of scales")
+            plt.title("Entropy distribution with cultural examples (12-TET approx.)")
+            plt.legend(loc="center left", bbox_to_anchor=(1.02, 0.5), frameon=False, title="Cultural scales", fontsize=9)
+            save_svg(os.path.join(out, "hist_entropy_with_cultural.svg"))
+
+            # Scatter entropy vs k with cultural labels
+            apply_pub_style()
+            plt.figure()
+            plt.scatter(df["k"], df["entropy_norm"], s=6, alpha=0.35, label="All scales")
+            markers = ["o", "s", "^", "D", "v", "P", "*", "X", "h", ">", "<", "8"]
+            colors = list(cm.get_cmap("tab10").colors)
+            # Plot each cultural point with distinct color/marker and slight x-jitter for visibility when overlapping
+            for i, r in enumerate(cdf.itertuples(index=False)):
+                col = colors[i % len(colors)]
+                mk = markers[i % len(markers)]
+                jitter_x = ((i % 5) - 2) * 0.06  # ±0.12 range around integer k
+                plt.scatter([r.k + jitter_x], [r.entropy_norm], s=48, marker=mk, color=col, label=getattr(r, "name"))
+            plt.xlabel("Scale size k")
+            plt.ylabel("Normalized entropy")
+            plt.title("Entropy vs k with cultural examples")
+            plt.legend(loc="center left", bbox_to_anchor=(1.02, 0.5), frameon=False, title="Cultural scales", fontsize=9)
+            save_svg(os.path.join(out, "scatter_entropy_vs_k_cultural.svg"))
+
+            # Scatter entropy vs arrangement with cultural labels
+            apply_pub_style()
+            plt.figure()
+            plt.scatter(df["arrangement_defect"], df["entropy_norm"], s=6, alpha=0.35, label="All scales")
+            markers = ["o", "s", "^", "D", "v", "P", "*", "X", "h", ">", "<", "8"]
+            colors = list(cm.get_cmap("tab10").colors)
+            for i, r in enumerate(cdf.itertuples(index=False)):
+                col = colors[i % len(colors)]
+                mk = markers[i % len(markers)]
+                jitter_x = ((i % 5) - 2) * 0.005  # small horizontal jitter
+                jitter_y = ((i % 3) - 1) * 0.004  # minimal vertical jitter
+                plt.scatter([r.arrangement_defect + jitter_x], [r.entropy_norm + jitter_y], s=48, marker=mk, color=col, label=getattr(r, "name"))
+            plt.xlabel("Arrangement defect")
+            plt.ylabel("Normalized entropy")
+            plt.title("Entropy vs arrangement with cultural examples")
+            plt.legend(loc="center left", bbox_to_anchor=(1.02, 0.5), frameon=False, title="Cultural scales", fontsize=9)
+            save_svg(os.path.join(out, "scatter_entropy_vs_arrangement_cultural.svg"))
+
+
     print(f"Wrote metrics CSV and figures to: {out}")
 
 
 if __name__ == "__main__":
     main()
-
