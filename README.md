@@ -74,26 +74,52 @@ If you prefer not to install, you can run the wrapper script with the package on
 
 ## Additional anlysis, e.g. entropy and graphs
 
-- Entropy & Complexity:
-  - Run: `python scripts/scales_entropy_cli.py --out-dir out/entropy --max-gap 4`
-  - Outputs: `entropy_metrics.csv`, `hist_entropy.svg`, `scatter_entropy_vs_k.svg`, `scatter_entropy_vs_arrangement.svg`, `scatter_lz_vs_entropy.svg`
+Entropy & sequence complexity (`scripts/scales_entropy_cli.py`)
+- Purpose: quantify order/disorder of a scale’s step vector and relate it to geometric symmetry (arrangement defect).
+- Inputs: `--n` (N‑TET, default 12), `--min-k/--max-k` or `--k`, optional `--max-gap`, and `--no-require-root`.
+- Step vector: differences between successive pitch classes in ascending order plus wrap‑around; elements sum to `n`.
+- Metrics
+  - Shannon entropy (bits): `H = -Σ p(s) log2 p(s)` over step sizes `s` in the vector.
+  - Normalized entropy: `H / log2(min(k, n))` ∈ [0,1] so values are comparable across `k`.
+  - LZ76 complexity (normalized): phrase count `c(n)` scaled as `c(n)*log2(n)/n` ∈ [0,1]; captures repetition vs novelty beyond histograms.
+  - Arrangement defect: `1 − max_τ cosine(g, rotate(reverse(g), τ))` (0 = palindromic under rotation).
+- Outputs
+  - `entropy_metrics.csv`: one row per scale with `k`, `entropy_bits`, `entropy_norm`, `lz_norm`, `arrangement_defect`.
+  - Figures: `hist_entropy.svg`, `scatter_entropy_vs_k.svg`, `scatter_entropy_vs_arrangement.svg`, `scatter_lz_vs_entropy.svg`.
+- Example: `python scripts/scales_entropy_cli.py --out-dir out/entropy --max-gap 4`
 
-- Mode Equivalence (symmetry):
-  - Run: `python scripts/scales_mode_equivalence_cli.py --out-dir out/modes --max-gap 4 --dihedral`
-  - Outputs: `mode_classes.csv`, `classes_by_k.csv`, `bar_classes_by_k.svg`, `hist_symmetry_order.svg`
+Mode equivalence & symmetry (`scripts/scales_mode_equivalence_cli.py`)
+- Purpose: collapse rotation‑equivalent (and optionally reflection‑equivalent) modes and measure symmetry.
+- Canonical representative: lexicographically smallest rotation (and reflection if `--dihedral`) of the step pattern.
+- Symmetry order: number of group elements (C_k or D_k) that fix the pattern; higher means more regularity.
+- Outputs
+  - `mode_classes.csv`: `canonical` (e.g., `2-2-1-2-2-2-1`), `k`, `class_size` (distinct masks hitting this pattern under filters), `symmetry_order`.
+  - `classes_by_k.csv`: count of canonical classes per `k`.
+  - Figures: `bar_classes_by_k.svg`, `hist_symmetry_order.svg`.
+- Example: `python scripts/scales_mode_equivalence_cli.py --out-dir out/modes --max-gap 4 --dihedral`
 
-- Graph & Distances:
-  - Build flip-edge graph (Hamming=1):
-    - `python scripts/scales_graph_cli.py --out-dir out/graph --max-gap 4`
-  - Build swap-edge graph (size-preserving):
-    - `python scripts/scales_graph_cli.py --out-dir out/graph_swap --edge-type swap --k 7`
-  - Nearest neighbors to a target (e.g., major):
-    - `python scripts/scales_graph_cli.py --out-dir out/graph_nn --k 7 --target major`
-  - Shortest path between major and minor within size-preserving graph:
-    - `python scripts/scales_graph_cli.py --out-dir out/graph_path --edge-type swap --k 7 --path-src major --path-dst minor`
-  - Outputs: `graph_nodes.csv`, `graph_edges.csv`, `degree_histogram.svg`, `component_sizes.svg`, and optionally `nearest_neighbors.csv`, `shortest_path.csv`.
+Graphs & distances (`scripts/scales_graph_cli.py`)
+- Purpose: view scales as nodes, connect them by minimal edits, and analyze neighborhoods, components, and morph paths.
+- Node set: all masks satisfying filters (`--n`, `--k`/`--min-k/--max-k`, `--max-gap`, root requirement).
+- Edge types
+  - `flip`: toggle one pitch class (Hamming distance 1) — add/remove.
+  - `swap`: remove one and add one (Hamming distance 2) — preserves `k`.
+- Distances & paths
+  - Nearest neighbors to `--target` by Hamming distance (accepts `major`, `minor`, `mask:<int>`, `steps:…`).
+  - Shortest path between `--path-src` and `--path-dst` on the constructed graph (BFS).
+- Outputs
+  - `graph_nodes.csv` (`mask,k,degree,component_id`), `graph_edges.csv` (`u,v`).
+  - Figures: `degree_histogram.svg`, `component_sizes.svg`.
+  - Optional: `nearest_neighbors.csv`, `shortest_path.csv` when requested.
+- Examples
+  - Flip-edge graph: `python scripts/scales_graph_cli.py --out-dir out/graph --max-gap 4`
+  - Swap-edge graph k=7: `python scripts/scales_graph_cli.py --out-dir out/graph_swap --edge-type swap --k 7`
+  - NN to major: `python scripts/scales_graph_cli.py --out-dir out/graph_nn --k 7 --target major`
+  - Path major→minor: `python scripts/scales_graph_cli.py --out-dir out/graph_path --edge-type swap --k 7 --path-src major --path-dst minor`
 
-All figures are saved as SVG.
+Notes on scale enumeration
+- Runtime grows with `n` and relaxed filters. For `n=12` it’s fast; for larger `n`, constrain `--k` and/or `--max-gap`.
+- Figures are saved as SVG with text preserved and a clean grid suitable for publications.
 
 ### Example results
 
