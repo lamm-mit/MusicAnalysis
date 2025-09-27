@@ -2,18 +2,14 @@
 
 Music analysis tools especially around scales, defects and related topics.
 
-**Conda**
+Dependencies are declared in `pyproject.toml` (PEP 621). No `requirements.txt` or `environment.yml` needed.
 
-- Create from `environment.yml` (installs package editable via pip):
-  - `conda env create -f environment.yml`
-  - `conda activate music-analysis`
-  - Verify: `music-cli --version`
-- Update an existing env to match `environment.yml`:
-  - `conda env update -f environment.yml -n music-analysis`
-- Manual Conda setup (alternative):
-  - `conda create -n music-analysis python>=3.9`
-  - `conda activate music-analysis`
-  - `python -m pip install -e .` (add `--no-build-isolation` if desired)
+**Conda (recommended workflow)**
+
+- Create env: `conda create -n music-analysis python>=3.9`
+- Activate: `conda activate music-analysis`
+- Install this project (reads deps from `pyproject.toml`): `python -m pip install -e .`
+- Verify: `music-cli --version`
 
 **Clone**
 

@@ -11,6 +11,7 @@ requires-python = ">=3.9"
 authors = [
   { name = "Markus J. Buehler" }
 ]
+dependencies = []
 
 [project.scripts]
 music-cli = "music_analysis.cli:main"
