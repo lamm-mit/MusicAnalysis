@@ -72,6 +72,10 @@ If you prefer not to install, you can run the wrapper script with the package on
 6) Ian Ring–style gap (≤4) with defaults
 ```python scripts/scales_defects_cli.py --out-dir out/maxgap4 --max-gap 4```
 
+### Example results
+
+<img width="615" height="770" alt="image" src="https://github.com/user-attachments/assets/c77f6e43-fd02-4060-b5b8-6c3fb3f3290b" />
+
 **Uninstall**
 
 - `pip uninstall music-analysis`
