@@ -54,18 +54,23 @@ If you prefer not to install, you can run the wrapper script with the package on
 
 ### Compute scale defects
 
-1) Default (max gap = 4, require root)
-```python ./scripts/scales_defects_cli.py --out-dir out/maxgap4```
+1) No gap filter (baseline)
+```python ./scripts/scales_defects_cli.py --out-dir out/no_gap --no-gap-filter```
 
-2) Different gap (e.g., 1)
-```python ./scripts/scales_defects_cli.py --out-dir out/maxgap3 --max-gap 1```
+2) Classic filter (e.g., K=4)
+```python ./scripts/scales_defects_cli.py --out-dir out/maxgap4 --max-gap 4```
 
-3) Different gap (e.g., 3)
-```python ./scripts/scales_defects_cli.py --out-dir out/maxgap3 --max-gap 3```
+3) Customize composite weights
+```python ./scripts/scales_defects_cli.py --out-dir out/maxgap4 --max-gap 4 --w1 0.6 --w2 0.2 --w3 0.2```
 
-4) Without requiring the root note
+4) Without requiring root (optional)
 ```python ./scripts/scales_defects_cli.py --out-dir out/maxgap4_no_root --max-gap 4 --no-require-root```
 
+5) All subsets (no gap filter), 20 bins in [0,1] for heatmaps
+```python scripts/scales_defects_cli.py --out-dir out/no_gap --no-gap-filter --heatmap-bins 20```
+
+6) Ian Ring–style gap (≤4) with defaults
+```python scripts/scales_defects_cli.py --out-dir out/maxgap4 --max-gap 4```
 
 **Uninstall**
 
