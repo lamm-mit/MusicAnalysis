@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "music-analysis"
+version = "0.1.0"
+description = "Minimal music analysis tools"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+  { name = "Markus J. Buehler" }
+]
+
+[project.scripts]
+music-cli = "music_analysis.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
