@@ -129,6 +129,11 @@ Notes on scale enumeration
 
 <img width="615" height="770" alt="image" src="https://github.com/user-attachments/assets/c77f6e43-fd02-4060-b5b8-6c3fb3f3290b" />
 
+(Top) Enumeration of valid scales in 12-TET as a function of number of notes, under different maximum circular step constraints. A valid scale is defined as a subset of the 12 pitch classes including the root (note 0) and, if a gap constraint is applied, no adjacent interval exceeding
+the threshold. Exhaustive enumeration subsets) was performed by computing step vectors from bitmasks, filters by constraints, and counts scales by size. 
+
+(Bottom) Distribution of evenness defect vs.nu mber of notes k (no gap constraint,root required). The evenness defect is the normalized standard deviation of step sizes relative to the uniform value 12/k, rescaled to [0,1] by the maximum observed standard deviation at that $k$. The heatmap shows scale counts per bin (20 bins along the vertical axis). 
+
 <img width="1041" height="626" alt="image" src="https://github.com/user-attachments/assets/0a3aa668-c18f-4be3-849f-43456220e586" />
 
 Entropy versus evenness defect across the space of valid 12-TET scales, with cultural exemplars overlaid. The dashed ellipse highlights the “cultural corridor” of moderate entropy and defect, where nearly all salient systems (major, minor, pentatonic, raga, maqam, bebop) cluster. The analysis provides a direct quantitative link between defect-mediated resilience in matter and imperfection-driven expressivity in music. The result leads also towards a unified view in which both material toughness and musical expressivity  arise most robustly at intermediate levels of imperfection.
