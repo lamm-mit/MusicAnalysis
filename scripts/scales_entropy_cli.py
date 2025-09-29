@@ -8,12 +8,14 @@ Outputs (under --out-dir):
   - scatter_entropy_vs_k.svg
   - scatter_entropy_vs_arrangement.svg
   - scatter_lz_vs_entropy.svg
+  - heatmap_entropy_vs_evenness.svg
   - cultural_scales_metrics.csv (optional, if --overlay-cultural)
   - hist_entropy_with_cultural.svg (optional)
   - scatter_entropy_vs_k_cultural.svg (optional)
   - scatter_entropy_vs_arrangement_cultural.svg (optional)
-  - mean_entropy_vs_k.svg (mean entropy by k, line only)
-  - mean_entropy_vs_k_cultural.svg (mean line + cultural overlays)
+  - mean_entropy_vs_k.svg (raw scatter + mean line ±1 SD)
+  - mean_entropy_vs_k_cultural.svg (raw scatter + mean line ±1 SD + cultural overlays)
+  - heatmap_entropy_vs_evenness_cultural.svg (optional)
 
 Figures are publication-friendly SVGs (text preserved, grid on).
 
@@ -54,6 +56,13 @@ def compute_table(n: int, require_root: bool, min_k: int, max_k: int | None, max
         H, Hn = shannon_entropy_bits(steps, n)
         lz = lz76_complexity_norm(steps)
         arr = arrangement_defect(steps)
+        # evenness magnitude (std of deviations from n/k)
+        if k <= 1:
+            even_std = 0.0
+        else:
+            mu = n / k
+            diffs = np.array(steps, dtype=float) - mu
+            even_std = float(np.sqrt(np.mean(diffs * diffs)))
         rows.append({
             "mask": m,
             "n": n,
@@ -62,8 +71,15 @@ def compute_table(n: int, require_root: bool, min_k: int, max_k: int | None, max
             "entropy_norm": Hn,
             "lz_norm": lz,
             "arrangement_defect": arr,
+            "evenness_std": even_std,
         })
-    return pd.DataFrame(rows)
+    df = pd.DataFrame(rows)
+    if not df.empty:
+        per_k_max = df.groupby("k")["evenness_std"].transform(lambda s: s.max() if s.max() > 0 else 1.0)
+        df["evenness_norm"] = (df["evenness_std"] / per_k_max).fillna(0.0).clip(0.0, 1.0)
+    else:
+        df["evenness_norm"] = []
+    return df
 
 
 ## (no smoothing helper; mean line is plotted directly)
@@ -174,6 +190,19 @@ def main():
     plt.title("Sequence complexity vs entropy")
     save_svg(os.path.join(out, "scatter_lz_vs_entropy.svg"))
 
+    # Heatmap: normalized entropy vs normalized evenness (standard colormap)
+    apply_pub_style()
+    plt.figure(figsize=(7.2, 6.2))
+    plt.hist2d(df["evenness_norm"].values, df["entropy_norm"].values,
+               bins=40, range=[[0, 1], [0, 1]])
+    plt.xlabel("Evenness defect (normalized)")
+    plt.ylabel("Normalized entropy")
+    plt.title("Entropy vs evenness (density)")
+    cbar = plt.colorbar()
+    cbar.set_label("Count")
+    plt.tight_layout()
+    save_svg(os.path.join(out, "heatmap_entropy_vs_evenness.svg"))
+
     # Cultural overlays (12-TET approximations)
     if args.overlay_cultural and args.n == 12:
         cat = cultural_catalog()
@@ -278,6 +307,45 @@ def main():
             plt.title("Entropy vs k (raw + mean ±1 SD) with cultural examples")
             plt.legend(loc="center left", bbox_to_anchor=(1.02, 0.5), frameon=False, title="Cultural scales", fontsize=9)
             save_svg(os.path.join(out, "mean_entropy_vs_k_cultural.svg"))
+
+            # Heatmap with cultural overlays (entropy vs evenness)
+            apply_pub_style()
+            plt.figure(figsize=(7.2, 6.2))
+            plt.hist2d(df["evenness_norm"].values, df["entropy_norm"].values,
+                       bins=40, range=[[0, 1], [0, 1]])
+            # normalize cultural evenness using same per-k maxima
+            per_k_max_map = df.groupby("k")["evenness_std"].max().to_dict()
+            markers = ["o", "s", "^", "D", "v", "P", "*", "X", "h", ">", "<", "8"]
+            colors = list(cm.get_cmap("tab10").colors)
+            for i, r in enumerate(cdf.itertuples(index=False)):
+                col = colors[i % len(colors)]
+                mk = markers[i % len(markers)]
+                k_val = int(r.k)
+                max_std = per_k_max_map.get(k_val, 1.0) or 1.0
+                pcs_c = pcs_from_mask(int(r.mask), args.n)
+                steps_c = step_vector_from_pcs(pcs_c, args.n)
+                if k_val <= 1:
+                    even_norm = 0.0
+                else:
+                    mu_c = args.n / k_val
+                    d = np.array(steps_c, dtype=float) - mu_c
+                    ev_std = float(np.sqrt(np.mean(d * d)))
+                    even_norm = 0.0 if max_std == 0 else float(np.clip(ev_std / max_std, 0.0, 1.0))
+                jx = ((i % 5) - 2) * 0.004
+                jy = ((i % 3) - 1) * 0.004
+                plt.scatter([even_norm + jx], [float(r.entropy_norm) + jy], s=56, marker=mk, color=col, label=getattr(r, "name"))
+            plt.xlabel("Evenness defect (normalized)")
+            plt.ylabel("Normalized entropy")
+            plt.title("Entropy vs evenness with cultural examples")
+            handles, labels = plt.gca().get_legend_handles_labels()
+            uniq = dict(zip(labels, handles))
+            leg = plt.legend(uniq.values(), uniq.keys(), loc="upper left", frameon=True, title="Cultural scales", fontsize=9)
+            leg.get_frame().set_alpha(0.85)
+            leg.get_frame().set_facecolor("white")
+            cbar = plt.colorbar()
+            cbar.set_label("Count")
+            plt.tight_layout()
+            save_svg(os.path.join(out, "heatmap_entropy_vs_evenness_cultural.svg"))
 
             # Scatter entropy vs arrangement with cultural labels
             apply_pub_style()

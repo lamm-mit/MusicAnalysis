@@ -85,11 +85,11 @@ Entropy & sequence complexity (`scripts/scales_entropy_cli.py`)
   - Arrangement defect: `1 − max_τ cosine(g, rotate(reverse(g), τ))`; equals `0` for palindromic arrangements under rotation, increases with asymmetry.
 - Outputs
   - `entropy_metrics.csv`: one row per scale with `k`, `entropy_bits`, `entropy_norm`, `lz_norm`, `arrangement_defect`.
-  - Figures: `hist_entropy.svg`, `scatter_entropy_vs_k.svg`, `scatter_entropy_vs_arrangement.svg`, `scatter_lz_vs_entropy.svg`, `mean_entropy_vs_k.svg` (raw scatter + mean-by-k line with ±1 SD shaded band).
+  - Figures: `hist_entropy.svg`, `scatter_entropy_vs_k.svg`, `scatter_entropy_vs_arrangement.svg`, `scatter_lz_vs_entropy.svg`, `mean_entropy_vs_k.svg` (raw scatter + mean-by-k line with ±1 SD shaded band), `heatmap_entropy_vs_evenness.svg` (2D density of entropy vs evenness).
 - Cultural overlays (12‑TET approximations): add labeled examples to the distribution and scatter plots using `--overlay-cultural`. Included: Western major/minor, major/minor pentatonic, raga Bhairav, raga Kalyani (Lydian), maqam Bayati, maqam Hijaz. These use simple 12‑TET step approximations for illustration.
   - Also included: diminished (octatonic, both W–H and H–W forms), harmonic minor (7), bebop dominant (8), bebop major (8), and bebop harmonic minor (8). Names and step patterns use common 12‑TET approximations.
   - Example: `python scripts/scales_entropy_cli.py --out-dir out/entropy --max-gap 4 --overlay-cultural`
-  - Extra outputs: `cultural_scales_metrics.csv`, `hist_entropy_with_cultural.svg`, `scatter_entropy_vs_k_cultural.svg`, `scatter_entropy_vs_arrangement_cultural.svg`, `mean_entropy_vs_k_cultural.svg` (raw scatter + mean line with ±1 SD band + cultural overlays).
+  - Extra outputs: `cultural_scales_metrics.csv`, `hist_entropy_with_cultural.svg`, `scatter_entropy_vs_k_cultural.svg`, `scatter_entropy_vs_arrangement_cultural.svg`, `mean_entropy_vs_k_cultural.svg` (raw scatter + mean line with ±1 SD band + cultural overlays), `heatmap_entropy_vs_evenness_cultural.svg`.
   - Plotting details: cultural examples use distinct colors and markers with a legend placed outside the axes to avoid overlap. Small, non-inferential jitter is applied when multiple examples share identical coordinates so each marker remains visible while still indicating co-location.
 
 Mode equivalence & symmetry (`scripts/scales_mode_equivalence_cli.py`)
