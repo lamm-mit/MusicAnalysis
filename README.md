@@ -129,6 +129,10 @@ Notes on scale enumeration
 
 <img width="615" height="770" alt="image" src="https://github.com/user-attachments/assets/c77f6e43-fd02-4060-b5b8-6c3fb3f3290b" />
 
+<img width="1041" height="626" alt="image" src="https://github.com/user-attachments/assets/0a3aa668-c18f-4be3-849f-43456220e586" />
+
+Entropy versus evenness defect across the space of valid 12-TET scales, with cultural exemplars overlaid. The dashed ellipse highlights the “cultural corridor” of moderate entropy and defect, where nearly all salient systems (major, minor, pentatonic, raga, maqam, bebop) cluster. The analysis provides a direct quantitative link between defect-mediated resilience in matter and imperfection-driven expressivity in music. The result leads also towards a unified view in which both material toughness and musical expressivity  arise most robustly at intermediate levels of imperfection.
+
 **Uninstall**
 
 - `pip uninstall music-analysis`
@@ -139,3 +143,15 @@ Python dependencies are declared in `pyproject.toml` and installed by pip:
 - numpy, pandas, matplotlib
 
 On Conda, you can also preinstall them: `conda install -n music-analysis numpy pandas matplotlib`, then run `python -m pip install -e .`.
+
+
+## Reference and Citation
+
+```bibtex
+@article{buehler2025musicanalysis,
+  title={Materiomusic as a Framework for Creativity and Discovery},
+  author={Buehler, Markus J.},
+  journal={arXiv preprint arXiv:2509.xxxxx},
+  year={2025}
+}
+```
