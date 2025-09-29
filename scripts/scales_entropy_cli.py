@@ -12,6 +12,8 @@ Outputs (under --out-dir):
   - hist_entropy_with_cultural.svg (optional)
   - scatter_entropy_vs_k_cultural.svg (optional)
   - scatter_entropy_vs_arrangement_cultural.svg (optional)
+  - mean_entropy_vs_k.svg (mean entropy by k, line only)
+  - mean_entropy_vs_k_cultural.svg (mean line + cultural overlays)
 
 Figures are publication-friendly SVGs (text preserved, grid on).
 
@@ -28,6 +30,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
+from matplotlib.lines import Line2D
 
 from music_analysis.plotting import apply_pub_style, save_svg
 from music_analysis.theory import (
@@ -61,6 +64,9 @@ def compute_table(n: int, require_root: bool, min_k: int, max_k: int | None, max
             "arrangement_defect": arr,
         })
     return pd.DataFrame(rows)
+
+
+## (no smoothing helper; mean line is plotted directly)
 
 
 def cultural_catalog() -> dict:
@@ -122,12 +128,31 @@ def main():
     # Scatter entropy vs k
     plt.figure()
     plt.figure(figsize=(9, 5.5))
-    
     plt.scatter(df["k"], df["entropy_norm"], s=6, alpha=0.7)
     plt.xlabel("Scale size k")
     plt.ylabel("Normalized entropy")
     plt.title("Entropy vs scale size")
     save_svg(os.path.join(out, "scatter_entropy_vs_k.svg"))
+
+    # Mean entropy by k with raw data background
+    apply_pub_style()
+    plt.figure()
+    plt.scatter(df["k"], df["entropy_norm"], s=6, alpha=0.18, label="All scales")
+    grp = df.groupby("k")["entropy_norm"]
+    mean_by_k = grp.mean().sort_index()
+    std_by_k = grp.std(ddof=1).reindex(mean_by_k.index).fillna(0.0)
+    x = mean_by_k.index.values.astype(float)
+    m = mean_by_k.values.astype(float)
+    s = std_by_k.values.astype(float)
+    lower = np.clip(m - s, 0.0, 1.0)
+    upper = np.clip(m + s, 0.0, 1.0)
+    line, = plt.plot(x, m, linewidth=2.0, label="Mean by k")
+    plt.fill_between(x, lower, upper, color=line.get_color(), alpha=0.18, label="±1 SD")
+    plt.xlabel("Scale size k")
+    plt.ylabel("Normalized entropy")
+    plt.title("Entropy vs k (raw + mean ±1 SD)")
+    plt.legend(frameon=False)
+    save_svg(os.path.join(out, "mean_entropy_vs_k.svg"))
 
     # Scatter entropy vs arrangement defect
     plt.figure()
@@ -186,19 +211,27 @@ def main():
             colors = list(cm.get_cmap("tab10").colors)
             y0, y1 = plt.ylim()
             rug_y = y0 + 0.035 * (y1 - y0)
+            legend_handles = []
+            legend_labels = []
             for i, r in enumerate(cdf.itertuples(index=False)):
                 x = float(r.entropy_norm)
+                name = getattr(r, "name")
                 col = colors[i % len(colors)]
                 mk = markers[i % len(markers)]
                 # vertical line in distinct color
-                plt.axvline(x, color=col, linestyle="--", linewidth=1.2, label=getattr(r, "name"))
+                plt.axvline(x, color=col, linestyle="--", linewidth=1.2)
                 # small rug marker with slight jitter to hint duplicates
                 jitter = ((i % 5) - 2) * 0.002
                 plt.scatter([x + jitter], [rug_y], color=col, marker=mk, s=40, zorder=3)
+                # legend proxy showing both line style and marker symbol
+                handle = Line2D([0], [0], color=col, linestyle="--", linewidth=1.2,
+                                 marker=mk, markersize=6, markerfacecolor=col, markeredgecolor=col)
+                legend_handles.append(handle)
+                legend_labels.append(name)
             plt.xlabel("Normalized Shannon entropy (steps)")
             plt.ylabel("Count of scales")
             plt.title("Entropy distribution with cultural examples (12-TET approx.)")
-            plt.legend(loc="center left", bbox_to_anchor=(1.02, 0.5), frameon=False, title="Cultural scales", fontsize=9)
+            plt.legend(legend_handles, legend_labels, loc="center left", bbox_to_anchor=(1.02, 0.5), frameon=False, title="Cultural scales", fontsize=9)
             save_svg(os.path.join(out, "hist_entropy_with_cultural.svg"))
 
             # Scatter entropy vs k with cultural labels
@@ -218,6 +251,33 @@ def main():
             plt.title("Entropy vs k with cultural examples")
             plt.legend(loc="center left", bbox_to_anchor=(1.02, 0.5), frameon=False, title="Cultural scales", fontsize=9)
             save_svg(os.path.join(out, "scatter_entropy_vs_k_cultural.svg"))
+
+            # Mean line with cultural overlays and raw background
+            apply_pub_style()
+            plt.figure()
+            plt.scatter(df["k"], df["entropy_norm"], s=6, alpha=0.18, label="All scales")
+            grp = df.groupby("k")["entropy_norm"]
+            mean_by_k = grp.mean().sort_index()
+            std_by_k = grp.std(ddof=1).reindex(mean_by_k.index).fillna(0.0)
+            x = mean_by_k.index.values.astype(float)
+            m = mean_by_k.values.astype(float)
+            s = std_by_k.values.astype(float)
+            lower = np.clip(m - s, 0.0, 1.0)
+            upper = np.clip(m + s, 0.0, 1.0)
+            line, = plt.plot(x, m, linewidth=2.0, label="Mean by k")
+            plt.fill_between(x, lower, upper, color=line.get_color(), alpha=0.18, label="±1 SD")
+            markers = ["o", "s", "^", "D", "v", "P", "*", "X", "h", ">", "<", "8"]
+            colors = list(cm.get_cmap("tab10").colors)
+            for i, r in enumerate(cdf.itertuples(index=False)):
+                col = colors[i % len(colors)]
+                mk = markers[i % len(markers)]
+                jitter_x = ((i % 5) - 2) * 0.06
+                plt.scatter([r.k + jitter_x], [r.entropy_norm], s=56, marker=mk, color=col, label=getattr(r, "name"))
+            plt.xlabel("Scale size k")
+            plt.ylabel("Normalized entropy")
+            plt.title("Entropy vs k (raw + mean ±1 SD) with cultural examples")
+            plt.legend(loc="center left", bbox_to_anchor=(1.02, 0.5), frameon=False, title="Cultural scales", fontsize=9)
+            save_svg(os.path.join(out, "mean_entropy_vs_k_cultural.svg"))
 
             # Scatter entropy vs arrangement with cultural labels
             apply_pub_style()
