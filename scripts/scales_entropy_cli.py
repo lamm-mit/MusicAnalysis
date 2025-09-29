@@ -192,9 +192,22 @@ def main():
 
     # Heatmap: normalized entropy vs normalized evenness (standard colormap)
     apply_pub_style()
-    plt.figure(figsize=(7.2, 6.2))
-    plt.hist2d(df["evenness_norm"].values, df["entropy_norm"].values,
-               bins=40, range=[[0, 1], [0, 1]])
+    plt.figure(figsize=(9.2, 6.2))
+    h, xe, ye, im = plt.hist2d(
+        df["evenness_norm"].values,
+        df["entropy_norm"].values,
+        bins=30,
+        range=[[0, 1], [0, 1]],
+    )
+    # Remove tile borders and rasterize the mesh in SVG to avoid seam lines
+    try:
+        im.set_linewidth(0.0)
+        im.set_edgecolor('none')
+        im.set_antialiaseds(False)
+        im.set_rasterized(True)
+    except Exception:
+        pass
+    plt.grid(False)
     plt.xlabel("Evenness defect (normalized)")
     plt.ylabel("Normalized entropy")
     plt.title("Entropy vs evenness (density)")
@@ -235,7 +248,10 @@ def main():
             # Histogram with vertical lines for cultural scales + legend to avoid overlap
             apply_pub_style()
             plt.figure()
-            plt.hist(df["entropy_norm"], bins=30)
+            plt.hist(df["entropy_norm"], bins=30, #color="lightblue",
+                     
+                     color="#A1C9F4",
+                     )
             markers = ["o", "s", "^", "D", "v", "P", "*", "X", "h", ">", "<", "8"]
             colors = list(cm.get_cmap("tab10").colors)
             y0, y1 = plt.ylim()
@@ -265,7 +281,7 @@ def main():
 
             # Scatter entropy vs k with cultural labels
             apply_pub_style()
-            plt.figure()
+            plt.figure(figsize=(10, 5.6))
             plt.scatter(df["k"], df["entropy_norm"], s=6, alpha=0.35, label="All scales")
             markers = ["o", "s", "^", "D", "v", "P", "*", "X", "h", ">", "<", "8"]
             colors = list(cm.get_cmap("tab10").colors)
@@ -283,7 +299,7 @@ def main():
 
             # Mean line with cultural overlays and raw background
             apply_pub_style()
-            plt.figure()
+            plt.figure(figsize=(9.5, 5))
             plt.scatter(df["k"], df["entropy_norm"], s=6, alpha=0.18, label="All scales")
             grp = df.groupby("k")["entropy_norm"]
             mean_by_k = grp.mean().sort_index()
@@ -310,9 +326,21 @@ def main():
 
             # Heatmap with cultural overlays (entropy vs evenness)
             apply_pub_style()
-            plt.figure(figsize=(7.2, 6.2))
-            plt.hist2d(df["evenness_norm"].values, df["entropy_norm"].values,
-                       bins=40, range=[[0, 1], [0, 1]])
+            plt.figure(figsize=(11, 6.5))
+            h, xe, ye, im = plt.hist2d(
+                df["evenness_norm"].values,
+                df["entropy_norm"].values,
+                bins=30,
+                range=[[0, 1], [0, 1]],
+            )
+            try:
+                im.set_linewidth(0.0)
+                im.set_edgecolor('none')
+                im.set_antialiaseds(False)
+                im.set_rasterized(True)
+            except Exception:
+                pass
+            plt.grid(False)
             # normalize cultural evenness using same per-k maxima
             per_k_max_map = df.groupby("k")["evenness_std"].max().to_dict()
             markers = ["o", "s", "^", "D", "v", "P", "*", "X", "h", ">", "<", "8"]
@@ -333,15 +361,13 @@ def main():
                     even_norm = 0.0 if max_std == 0 else float(np.clip(ev_std / max_std, 0.0, 1.0))
                 jx = ((i % 5) - 2) * 0.004
                 jy = ((i % 3) - 1) * 0.004
-                plt.scatter([even_norm + jx], [float(r.entropy_norm) + jy], s=56, marker=mk, color=col, label=getattr(r, "name"))
+                plt.scatter([even_norm + jx], [float(r.entropy_norm) + jy], s=120, marker=mk, color=col, label=getattr(r, "name"))
             plt.xlabel("Evenness defect (normalized)")
             plt.ylabel("Normalized entropy")
             plt.title("Entropy vs evenness with cultural examples")
             handles, labels = plt.gca().get_legend_handles_labels()
             uniq = dict(zip(labels, handles))
-            leg = plt.legend(uniq.values(), uniq.keys(), loc="upper left", frameon=True, title="Cultural scales", fontsize=9)
-            leg.get_frame().set_alpha(0.85)
-            leg.get_frame().set_facecolor("white")
+            plt.legend(uniq.values(), uniq.keys(), loc="center left", bbox_to_anchor=(1.2, 0.5), frameon=False, title="Cultural scales", fontsize=11)
             cbar = plt.colorbar()
             cbar.set_label("Count")
             plt.tight_layout()
@@ -349,8 +375,8 @@ def main():
 
             # Scatter entropy vs arrangement with cultural labels
             apply_pub_style()
-            plt.figure()
-            plt.scatter(df["arrangement_defect"], df["entropy_norm"], s=6, alpha=0.35, label="All scales")
+            plt.figure(figsize=(9.8, 5.6))
+            plt.scatter(df["arrangement_defect"], df["entropy_norm"], s=12, alpha=0.35, label="All scales")
             markers = ["o", "s", "^", "D", "v", "P", "*", "X", "h", ">", "<", "8"]
             colors = list(cm.get_cmap("tab10").colors)
             for i, r in enumerate(cdf.itertuples(index=False)):
@@ -362,7 +388,7 @@ def main():
             plt.xlabel("Arrangement defect")
             plt.ylabel("Normalized entropy")
             plt.title("Entropy vs arrangement with cultural examples")
-            plt.legend(loc="center left", bbox_to_anchor=(1.02, 0.5), frameon=False, title="Cultural scales", fontsize=9)
+            plt.legend(loc="center left", bbox_to_anchor=(1.3, 0.5), frameon=False, title="Cultural scales", fontsize=9)
             save_svg(os.path.join(out, "scatter_entropy_vs_arrangement_cultural.svg"))
 
 
