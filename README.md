@@ -1,12 +1,12 @@
-# MusicAnalysis
+# MusicAnalysis: Tools for scale analysis 
 
-Music analysis tools especially around scales, defects and related topics.
-
-Dependencies are declared in `pyproject.toml`. Hence no `requirements.txt` or `environment.yml` is needed.
+Music analysis tools especially around scales, defects and related topics. This analysisexplores the emerging field of materiomusic, which connects the hierarchical structures of matter with the compositional structures of music. Proteins, spider webs, fire, and other material systems reveal generative principles that are echoed in tonal hierarchies, harmonic progressions, and long-range musical form. Both domains thrive on the balance of universality and diversity, order and imperfection, and the recursive layering of motifs across scales. By analyzing these parallels, we demonstrate how reversible mappings---from molecular vibrations to musical tones, from three-dimensional webs to playable instruments---can serve as both scientific probes and creative tools. We further show how agentic artificial intelligence, modeled as swarms of interacting agents, enables novel forms of invention that transcend the limits of conventional, monolithic AI. Quantitative analyses of swarm-generated music reveal network properties such as small-worldness, modularity, and long-range integration that closely approximate human creativity, suggesting that collective dynamics are a pathway to genuine novelty.  Beyond metaphor, materiomusic functions as a generative framework for discovery, engineering, and culture. It enables the design of de novo proteins through musical sonification, the exploration of natural architectures through performance and installation, and the development of AI systems that compose and invent in ways reminiscent of biological self-organization. By uniting matter, sound, and intelligence through a shared grammar of vibration and hierarchy, materiomusic provides not only a new lens for interpreting the world but also a natural language for creativity that bridges science, engineering, and the arts.
 
 <img width="722" height="646" alt="image" src="https://github.com/user-attachments/assets/698ba21f-2998-460f-8671-e0c47bc93ff3" />
 
 **Conda (recommended workflow)**
+
+Dependencies are declared in `pyproject.toml`. Hence no `requirements.txt` or `environment.yml` is needed.
 
 - Create env: `conda create -n music-analysis python>=3.9`
 - Activate: `conda activate music-analysis`
