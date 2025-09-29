@@ -4,6 +4,8 @@ Music analysis tools especially around scales, defects and related topics.
 
 Dependencies are declared in `pyproject.toml`. Hence no `requirements.txt` or `environment.yml` is needed.
 
+<img width="722" height="646" alt="image" src="https://github.com/user-attachments/assets/698ba21f-2998-460f-8671-e0c47bc93ff3" />
+
 **Conda (recommended workflow)**
 
 - Create env: `conda create -n music-analysis python>=3.9`
