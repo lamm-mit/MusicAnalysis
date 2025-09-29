@@ -2,7 +2,7 @@
 
 Music analysis tools especially around scales, defects and related topics.
 
-Dependencies are declared in `pyproject.toml` (PEP 621). No `requirements.txt` or `environment.yml` needed.
+Dependencies are declared in `pyproject.toml`. Hence no `requirements.txt` or `environment.yml` is needed.
 
 **Conda (recommended workflow)**
 
