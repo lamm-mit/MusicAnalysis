@@ -127,6 +127,22 @@ Notes on scale enumeration
 - Runtime grows with `n` and relaxed filters. For `n=12` it’s fast; for larger `n`, constrain `--k` and/or `--max-gap`.
 - Figures are saved as SVG with text preserved and a clean grid suitable for publications.
 
+## VAE
+
+This repo includes a pipeline for exploring the “geometry” of musical scales under different defect definitions. We enumerate all admissible 12-TET scales (with configurable constraints on size and maximum gap), compute both Zeitler’s functional defect (missing fifths) and a family of geometric defects (evenness, arrangement symmetry, interval diversity, plus a composite defect), as well as entropy and LZ-style sequence complexity. These scales and metrics are packaged into a Hugging Face–compatible dataset, and a lightweight Bernoulli VAE is trained on the binary scale vectors to learn a 2D latent embedding. 
+
+In parallel, a 2D UMAP embedding is computed directly from the raw scale vectors. The scripts produce a suite of publication-ready plots that visualize how different notions of defect and complexity distribute across latent space (VAE and UMAP), allowing direct comparison of (i) Zeitler’s tonal-functional view and (ii) a more general, structurally grounded notion of “selective imperfection” in the space of all scales.
+
+```bash
+pip install umap-learn datasets torch pandas numpy matplotlib
+python scales_vae_cli.py --out-dir out_scales_vae --hf-dataset-id lamm-mit/scales-12tet-defects
+```
+
+```bash
+python scales_vae_cli.py --out-dir out_scales_vae --hf-dataset-id lamm-mit/scales-12tet-defects --beta 0.1 --hidden-dim 128 --epochs 1000
+```
+
+
 ### Example results
 
 <img width="615" height="770" alt="image" src="https://github.com/user-attachments/assets/c77f6e43-fd02-4060-b5b8-6c3fb3f3290b" />
