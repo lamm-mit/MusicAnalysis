@@ -172,7 +172,7 @@ On Conda, you can also preinstall them: `conda install -n music-analysis numpy p
 
 ```bibtex
 @article{buehler2025musicanalysis,
-  title={Materiomusic as a Framework for Creativity and Discovery},
+  title={Selective Imperfection as a Generative Framework for Analysis, Creativity and Discovery},
   author={Buehler, Markus J.},
   journal={arXiv preprint arXiv:2509.xxxxx},
   year={2025}
