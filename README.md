@@ -1,6 +1,12 @@
 # MusicAnalysis: Tools for scale analysis 
 
-Music analysis tools especially around scales, defects and related topics. This analysisexplores the emerging field of materiomusic, which connects the hierarchical structures of matter with the compositional structures of music. Proteins, spider webs, fire, and other material systems reveal generative principles that are echoed in tonal hierarchies, harmonic progressions, and long-range musical form. Both domains thrive on the balance of universality and diversity, order and imperfection, and the recursive layering of motifs across scales. By analyzing these parallels, we demonstrate how reversible mappings---from molecular vibrations to musical tones, from three-dimensional webs to playable instruments---can serve as both scientific probes and creative tools. We further show how agentic artificial intelligence, modeled as swarms of interacting agents, enables novel forms of invention that transcend the limits of conventional, monolithic AI. Quantitative analyses of swarm-generated music reveal network properties such as small-worldness, modularity, and long-range integration that closely approximate human creativity, suggesting that collective dynamics are a pathway to genuine novelty.  Beyond metaphor, materiomusic functions as a generative framework for discovery, engineering, and culture. It enables the design of de novo proteins through musical sonification, the exploration of natural architectures through performance and installation, and the development of AI systems that compose and invent in ways reminiscent of biological self-organization. By uniting matter, sound, and intelligence through a shared grammar of vibration and hierarchy, materiomusic provides not only a new lens for interpreting the world but also a natural language for creativity that bridges science, engineering, and the arts.
+Music analysis tools especially around scales, defects and related topics. The tools are used in the paper titled `Selective Imperfection as a Generative Framework for Analysis, Creativity and Discovery`.
+
+Therein, we introduce materiomusic as a generative framework linking the hierarchical structures of matter with the compositional logic of music. Across proteins, spider webs, and fluid or flame dynamics, vibrational and architectural principles recur as tonal hierarchies, harmonic progressions, and long-range musical form. Using reversible mappings, from molecular spectra to musical tones and from three-dimensional networks to playable instruments, we show how sound functions as a scientific probe (an epistemic inversion where listening becomes a mode of seeing), while musical composition becomes a blueprint for matter. These mappings also excavate deep time: patterns originating in femtosecond molecular vibrations or billion-year evolutionary histories become audible and composable in the present. We propose a physics of invention: novelty in science and art emerges when constraints cannot be satisfied within existing degrees of freedom, forcing expansion of the space of viable configurations. Selective imperfection provides the mechanism restoring balance between coherence and adaptability. 
+
+Quantitative support comes from exhaustive enumeration of all 2^12 musical scales, revealing that culturally significant systems cluster in a mid-entropy, mid-defect corridor, directly paralleling the Hall-Petch optimum where intermediate defect densities maximize material strength. Iterating these mappings creates productive collisions between human creativity and physical law, generating new information as musical structures encounter evolutionary constraints in folding, mechanics, and flow. Extending to artificial intelligence, swarm-based agentic models compose music exhibiting human-like structural signatures such as small-world connectivity, modular integration, long-range coherence, suggesting a route beyond interpolation toward invention. 
+
+Finally, we advance an epistemology of creation: science and art are generative acts of world-building under constraint, with vibration as a shared grammar organizing structure across scales. The framework supports multimodal de novo protein design, performance-based interrogation of natural architectures, and AI systems that invent through collective dynamics.
 
 <img width="722" height="646" alt="image" src="https://github.com/user-attachments/assets/698ba21f-2998-460f-8671-e0c47bc93ff3" />
 
@@ -156,6 +162,8 @@ the threshold. Exhaustive enumeration subsets) was performed by computing step v
 
 Entropy versus evenness defect across the space of valid 12-TET scales, with cultural exemplars overlaid. The dashed ellipse highlights the “cultural corridor” of moderate entropy and defect, where nearly all salient systems (major, minor, pentatonic, raga, maqam, bebop) cluster. The analysis provides a direct quantitative link between defect-mediated resilience in matter and imperfection-driven expressivity in music. The result leads also towards a unified view in which both material toughness and musical expressivity  arise most robustly at intermediate levels of imperfection.
 
+<img width="1297" height="1072" alt="image" src="https://github.com/user-attachments/assets/8cc175bd-8804-455a-bc0f-a84b05a36d41" />
+
 **Uninstall**
 
 - `pip uninstall music-analysis`
@@ -166,7 +174,6 @@ Python dependencies are declared in `pyproject.toml` and installed by pip:
 - numpy, pandas, matplotlib
 
 On Conda, you can also preinstall them: `conda install -n music-analysis numpy pandas matplotlib`, then run `python -m pip install -e .`.
-
 
 ## Reference and Citation
 
