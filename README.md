@@ -178,10 +178,13 @@ On Conda, you can also preinstall them: `conda install -n music-analysis numpy p
 ## Reference and Citation
 
 ```bibtex
-@article{buehler2025musicanalysis,
-  title={Selective Imperfection as a Generative Framework for Analysis, Creativity and Discovery},
-  author={Buehler, Markus J.},
-  journal={arXiv preprint arXiv:2509.xxxxx},
-  year={2025}
+@misc{buehler2025selectiveimperfectiongenerativeframework,
+      title={Selective Imperfection as a Generative Framework for Analysis, Creativity and Discovery}, 
+      author={Markus J. Buehler},
+      year={2025},
+      eprint={2601.00863},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2601.00863}, 
 }
 ```
